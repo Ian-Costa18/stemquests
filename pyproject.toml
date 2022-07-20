@@ -1,0 +1,31 @@
+[build-system]
+requires      = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tor_requests"
+version = "1.0.0"
+description = "Dark web HTTP requests using Tor, stem helper library"
+readme = "README.md"
+authors = [{ name = "Ian Costa", email = "costa.ian18@gmail.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Topic :: Internet :: WWW/HTTP :: Session",
+]
+keywords = ["tor", "requests", "stem", "dark web"]
+dependencies = [
+    "requests[socks]",
+    "stem",
+    "psutil"
+]
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = ["pylint", "autopep8", "isort", "pytest", "pip-tools"]
+
+[project.urls]
+"Homepage" = "https://github.com/SammyTheBEAST/TorRequests"
+"Bug Tracker" = "https://github.com/SammyTheBEAST/TorRequests/issues"
