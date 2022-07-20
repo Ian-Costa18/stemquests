@@ -27,5 +27,5 @@ requires-python = ">=3.10"
 dev = ["pylint", "autopep8", "isort", "pytest", "pip-tools"]
 
 [project.urls]
-"Homepage" = "https://github.com/SammyTheBEAST/TorRequests"
-"Bug Tracker" = "https://github.com/SammyTheBEAST/TorRequests/issues"
+"Homepage" = "https://github.com/SammyTheBEAST/tor_requests"
+"Bug Tracker" = "https://github.com/SammyTheBEAST/tor_requests/issues"
