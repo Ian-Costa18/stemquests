@@ -24,7 +24,7 @@ dependencies = [
 requires-python = ">=3.10"
 
 [project.optional-dependencies]
-dev = ["pylint", "autopep8", "isort", "pytest", "pip-tools"]
+dev = ["pylint", "autopep8", "isort", "pytest", "pip-tools", "build", "twine"]
 
 [project.urls]
 "Homepage" = "https://github.com/SammyTheBEAST/tor_requests"
