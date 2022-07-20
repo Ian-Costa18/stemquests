@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tor_requests"
-version = "1.0.1"
+version = "1.0.0"
 description = "Dark web HTTP requests using Tor, a stem helper library."
 readme = "README.md"
 authors = [{ name = "Ian Costa", email = "costa.ian18@gmail.com" }]
