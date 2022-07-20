@@ -1,2 +1,2 @@
-# tor_requests
+# stemquests
 Python Requests and Stem helper for making HTTP requests over Tor.
