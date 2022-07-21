@@ -1,7 +1,7 @@
 """A class to start Tor processes with stem and create requests sessions with Tor.
 
 Usage:
-    from tor_requests import TorInstance
+    from stemquests import TorInstance
 
     tor = TorInstance()
     session = tor.get_session()
@@ -27,7 +27,6 @@ class TorConnectionError(Exception):
     """Exception raised when Tor connection fails."""
 
 
-# TODO: Maybe make this a subclass of requests.Session? How would it get a new requests session though?
 class TorInstance(object):
     """
     Create a Tor process and requests sessions to connect to it.
