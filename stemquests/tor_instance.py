@@ -19,9 +19,9 @@ import psutil
 import requests
 import stem.process
 
-from . import logger
 from .check_tor import check_tor
 
+logger = logging.getLogger(__name__)
 
 class TorConnectionError(Exception):
     """Exception raised when Tor connection fails."""
