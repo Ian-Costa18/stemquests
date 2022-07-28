@@ -23,11 +23,19 @@ from .check_tor import check_tor
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_TOR_HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Upgrade-Insecure-Requests": "1",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0",
+}
+
 class TorConnectionError(Exception):
     """Exception raised when Tor connection fails."""
 
 
-class TorInstance(object):
+class TorInstance():
     """
     Create a Tor process and requests sessions to connect to it.
     TorInstance.base_session can be used to make requests.
@@ -131,6 +139,7 @@ class TorInstance(object):
     def _get_base_session(self, parent_session: requests.Session=None, max_tries: int=5) -> requests.Session:
         """
         Start a base session for the TorInstance. This ensures Tor is working and gives us a constant session to use for various requests.
+        Also sets the headers to be used for requests. This allows us to look like a normal Tor browser.
 
         Args:
             max_tries (int): Maximum number of times to try to get a base session. Defaults to 5.
@@ -140,6 +149,7 @@ class TorInstance(object):
         """
         # Setup the default Tor session
         base_session = parent_session or requests.Session()
+        base_session.headers = DEFAULT_TOR_HEADERS
         base_session.proxies = {"http": f"socks5h://tor{self.current_session_number}:tor{self.current_session_number}@localhost:{self.port}",
                                 "https": f"socks5h://tor{self.current_session_number}:tor{self.current_session_number}@localhost:{self.port}"}
         # Ensure Tor is working
@@ -159,17 +169,14 @@ class TorInstance(object):
 
         return base_session
 
-    def get_session(self, *args, **kwargs) -> requests.Session:
-        """Alais for get_session_with_number()[0]. See TorInstance.get_session_with_number() for more information."""
-        return self.get_session_with_number(*args, **kwargs)[0]
-
-    def get_session_with_number(self, parent_session: requests.Session=None, max_tries: int=5) -> Tuple[requests.Session, int]:
+    def get_session_with_number(self, parent_session: requests.Session=None, headers: Dict[str]=None, max_retries: int=5) -> Tuple[requests.Session, int]:
         """
         Create a requests session with the specified configuration. Returns a tuple of the session and the current session number.
 
         Args:
-            parent_session (requests.Session): The parent session to use.
-            num_tries (int): The number of tries to create a new session, set to negative to allow more tries.
+            parent_session (requests.Session): The parent session to use. Defaults to TorInstance.base_session.
+            headers (Dict[str]): The headers to use for the session. Overwrites the parent_session's headers. Defaults to using the parent_session's headers.
+            max_retries (int): The number of tries to create a new session, set to negative to allow more tries.
 
         Returns:
             requests.Session: A requests session with the specified proxy configuration.
@@ -177,20 +184,30 @@ class TorInstance(object):
         """
         # Initialize the parent session
         session = parent_session or self.base_session
+        # Replace the session headers with the specified headers
+        if headers is not None:
+            session.headers = session.headers | headers
+        # Set the credentials and add them to the session's proxy configuration
         credentials = f'tor{self.current_session_number}'
-        # Setup requests
         session.proxies = {"http": f"socks5h://{credentials}:{credentials}@localhost:{self.port}",
                           "https": f"socks5h://{credentials}:{credentials}@localhost:{self.port}"}
+
         self.current_sessions[self.current_session_number] = session
+        # Check to see if Tor is working
         if not check_tor(session):
-            if max_tries <= 0:
+            if max_retries <= 0:
                 err_msg = f"Failed to connect to Tor on session #{self.current_session_number}, too many retrys."
                 logger.error(err_msg)
                 self.current_session_number += 1
                 raise TorConnectionError(err_msg)
             logger.error("Tor is not working for new session (#%d), retrying in 5 seconds...", self.current_session_number)
             sleep(5)
-            return self.get_session_with_number(session, max_tries=max_tries - 1)
+            return self.get_session_with_number(session, max_retries=max_retries - 1)
+
         logger.info("Tor works for session #%d!", self.current_session_number)
         self.current_session_number += 1
         return session, self.current_session_number
+
+    def get_session(self, *args, **kwargs) -> requests.Session:
+        """Alais for get_session_with_number()[0]. See TorInstance.get_session_with_number() for more information."""
+        return self.get_session_with_number(*args, **kwargs)[0]
