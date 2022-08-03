@@ -169,7 +169,7 @@ class TorInstance():
 
         return base_session
 
-    def get_session_with_number(self, parent_session: requests.Session=None, headers: Dict[str]=None, max_retries: int=5) -> Tuple[requests.Session, int]:
+    def get_session_with_number(self, parent_session: requests.Session=None, headers: Dict[str, str]=None, max_retries: int=5) -> Tuple[requests.Session, int]:
         """
         Create a requests session with the specified configuration. Returns a tuple of the session and the current session number.
 
